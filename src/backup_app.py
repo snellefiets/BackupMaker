@@ -141,27 +141,27 @@ class BackupApp:
         main_frame.pack(fill=tk.BOTH, expand=True)
 
         # Source folder
-        ttk.Label(main_frame, text="Source Ordner:").grid(row=0, column=0, sticky=tk.W, pady=5)
+        ttk.Label(main_frame, text="Source Folder:").grid(row=0, column=0, sticky=tk.W, pady=5)
         self.source_var = tk.StringVar()
         source_entry = ttk.Entry(main_frame, textvariable=self.source_var, width=40)
         source_entry.grid(row=0, column=1, padx=5, pady=5)
         ttk.Button(main_frame, text="...", width=3, command=self._browse_source).grid(row=0, column=2, pady=5)
 
         # Target folder
-        ttk.Label(main_frame, text="Target Ordner:").grid(row=1, column=0, sticky=tk.W, pady=5)
+        ttk.Label(main_frame, text="Target Folder:").grid(row=1, column=0, sticky=tk.W, pady=5)
         self.target_var = tk.StringVar()
         target_entry = ttk.Entry(main_frame, textvariable=self.target_var, width=40)
         target_entry.grid(row=1, column=1, padx=5, pady=5)
         ttk.Button(main_frame, text="...", width=3, command=self._browse_target).grid(row=1, column=2, pady=5)
 
         # Max backups
-        ttk.Label(main_frame, text="Max. Backups behalten:").grid(row=2, column=0, sticky=tk.W, pady=5)
+        ttk.Label(main_frame, text="Max. Backups to keep:").grid(row=2, column=0, sticky=tk.W, pady=5)
         self.max_backups_var = tk.IntVar(value=5)
         max_spin = ttk.Spinbox(main_frame, from_=1, to=100, textvariable=self.max_backups_var, width=10)
         max_spin.grid(row=2, column=1, sticky=tk.W, padx=5, pady=5)
 
         # Status label
-        self.status_var = tk.StringVar(value="Bereit")
+        self.status_var = tk.StringVar(value="Ready")
         status_label = ttk.Label(main_frame, textvariable=self.status_var, foreground="gray")
         status_label.grid(row=3, column=0, columnspan=3, pady=10)
 
@@ -169,19 +169,19 @@ class BackupApp:
         button_frame = ttk.Frame(main_frame)
         button_frame.grid(row=4, column=0, columnspan=3, pady=20)
 
-        ttk.Button(button_frame, text="Backup erstellen", command=self._create_backup).pack(side=tk.LEFT, padx=10)
-        ttk.Button(button_frame, text="Einstellungen speichern", command=self._save_settings).pack(side=tk.LEFT, padx=10)
+        ttk.Button(button_frame, text="Create Backup", command=self._create_backup).pack(side=tk.LEFT, padx=10)
+        ttk.Button(button_frame, text="Save Settings", command=self._save_settings).pack(side=tk.LEFT, padx=10)
 
     def _browse_source(self):
         """Open folder browser for source."""
-        folder = filedialog.askdirectory(title="Source Ordner auswählen")
+        folder = filedialog.askdirectory(title="Select Source Folder")
         if folder:
             self.source_var.set(folder)
             self._update_status()
 
     def _browse_target(self):
         """Open folder browser for target."""
-        folder = filedialog.askdirectory(title="Target Ordner auswählen")
+        folder = filedialog.askdirectory(title="Select Target Folder")
         if folder:
             self.target_var.set(folder)
             self._update_status()
@@ -199,7 +199,7 @@ class BackupApp:
         self.settings.target_folder = self.target_var.get()
         self.settings.max_backups = self.max_backups_var.get()
         self.settings.save()
-        messagebox.showinfo("Gespeichert", "Einstellungen wurden gespeichert!")
+        messagebox.showinfo("Saved", "Settings have been saved!")
 
     def _update_status(self):
         """Update the status label."""
@@ -209,9 +209,9 @@ class BackupApp:
             count = BackupMaker.get_backup_count(target, source)
             max_b = self.max_backups_var.get()
             source_name = Path(source).name
-            self.status_var.set(f"Backups für '{source_name}': {count} / {max_b}")
+            self.status_var.set(f"Backups for '{source_name}': {count} / {max_b}")
         else:
-            self.status_var.set("Bereit")
+            self.status_var.set("Ready")
 
     def _create_backup(self):
         """Create a new backup."""
@@ -221,20 +221,20 @@ class BackupApp:
 
         # Validate inputs
         if not source:
-            messagebox.showerror("Fehler", "Bitte Source Ordner auswählen!")
+            messagebox.showerror("Error", "Please select a source folder!")
             return
         if not target:
-            messagebox.showerror("Fehler", "Bitte Target Ordner auswählen!")
+            messagebox.showerror("Error", "Please select a target folder!")
             return
         if not Path(source).exists():
-            messagebox.showerror("Fehler", f"Source Ordner existiert nicht:\n{source}")
+            messagebox.showerror("Error", f"Source folder does not exist:\n{source}")
             return
 
         # Save settings before backup
         self._save_settings_silent()
 
         try:
-            self.status_var.set("Backup wird erstellt...")
+            self.status_var.set("Creating backup...")
             self.root.update()
 
             # Create backup
@@ -244,11 +244,11 @@ class BackupApp:
             BackupMaker.cleanup_old_backups(target, source, max_backups)
 
             self._update_status()
-            messagebox.showinfo("Erfolg", f"Backup erstellt:\n{backup_path}")
+            messagebox.showinfo("Success", f"Backup created:\n{backup_path}")
 
         except Exception as e:
-            messagebox.showerror("Fehler", f"Backup fehlgeschlagen:\n{str(e)}")
-            self.status_var.set("Fehler beim Backup!")
+            messagebox.showerror("Error", f"Backup failed:\n{str(e)}")
+            self.status_var.set("Backup error!")
 
     def _save_settings_silent(self):
         """Save settings without showing message."""

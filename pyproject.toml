@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "python-tools"
+version = "0.1.0"
+description = "Collection of Python utilities"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "Denni"}
+]
+
+[project.scripts]
+zipper = "src.zipper:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
